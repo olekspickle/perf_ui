@@ -2,7 +2,7 @@
 //! (using defaults for everything)
 
 use bevy::prelude::*;
-use bevy_perf_ui::prelude::*;
+use iyes_perf_ui::prelude::*;
 
 fn main() {
     App::new()
@@ -15,9 +15,9 @@ fn main() {
         .add_plugins(PerfUiPlugin)
         .add_systems(Startup, setup)
         // We need to order our system before PerfUiSet::Setup,
-        // so that bevy_perf_ui can process any new Perf UI in the same
+        // so that iyes_perf_ui can process any new Perf UI in the same
         // frame as we spawn the entities. Otherwise, Bevy UI will complain.
-        .add_systems(Update, toggle.before(bevy_perf_ui::PerfUiSet::Setup))
+        .add_systems(Update, toggle.before(iyes_perf_ui::PerfUiSet::Setup))
         .run();
 }
 

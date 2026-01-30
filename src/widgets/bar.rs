@@ -9,8 +9,8 @@
 use std::marker::PhantomData;
 
 use bevy::ecs::system::SystemParam;
-use bevy::prelude::*;
 use bevy::ecs::system::lifetimeless::SQuery;
+use bevy::prelude::*;
 
 use crate::entry::{PerfUiEntry, PerfUiEntryDisplayRange};
 use crate::ui::widget::{PerfUiWidget, PerfUiWidgetMarker};
@@ -118,13 +118,15 @@ where
 
     fn get_range(&self) -> Option<(f64, f64)> {
         use num_traits::NumCast;
-        let g_min = self.bar_color.min_stop()
-            .map(|(v, _)| *v as f64);
-        let g_max = self.bar_color.max_stop()
-            .map(|(v, _)| *v as f64);
-        let h_min = self.entry.min_value_hint()
+        let g_min = self.bar_color.min_stop().map(|(v, _)| *v as f64);
+        let g_max = self.bar_color.max_stop().map(|(v, _)| *v as f64);
+        let h_min = self
+            .entry
+            .min_value_hint()
             .and_then(|v| <f64 as NumCast>::from(v));
-        let h_max = self.entry.max_value_hint()
+        let h_max = self
+            .entry
+            .max_value_hint()
             .and_then(|v| <f64 as NumCast>::from(v));
         if g_min == g_max {
             if let (Some(h_min), Some(h_max)) = (h_min, h_max) {
@@ -159,21 +161,28 @@ where
     type SystemParamSpawn = ();
     type SystemParamUpdate = (
         E::SystemParam,
-        SQuery<(
-            &'static mut BackgroundColor,
-            &'static PerfUiWidgetBarParts,
-        ), (
-            With<BarWidgetMarker<E>>,
-            Without<BarWidgetInnerBarMarker<E>>,
-        )>,
-        SQuery<(
-            &'static mut BackgroundColor,
-            &'static mut Node,
-        ), (
-            With<BarWidgetInnerBarMarker<E>>,
-            Without<BarWidgetMarker<E>>,
-        )>,
-        SQuery<(&'static mut Text, &'static mut TextColor, &'static mut TextFont), With<BarWidgetTextMarker<E>>>,
+        SQuery<
+            (&'static mut BackgroundColor, &'static PerfUiWidgetBarParts),
+            (
+                With<BarWidgetMarker<E>>,
+                Without<BarWidgetInnerBarMarker<E>>,
+            ),
+        >,
+        SQuery<
+            (&'static mut BackgroundColor, &'static mut Node),
+            (
+                With<BarWidgetInnerBarMarker<E>>,
+                Without<BarWidgetMarker<E>>,
+            ),
+        >,
+        SQuery<
+            (
+                &'static mut Text,
+                &'static mut TextColor,
+                &'static mut TextFont,
+            ),
+            With<BarWidgetTextMarker<E>>,
+        >,
     );
 
     fn spawn(
@@ -183,67 +192,69 @@ where
         commands: &mut Commands,
         _: &mut <Self::SystemParamSpawn as SystemParam>::Item<'_, '_>,
     ) -> Entity {
-        let e_bar_outer = commands.spawn((
-            BackgroundColor(self.bar_background),
-            BorderColor(self.bar_border_color),
-            Node {
-                border: UiRect::all(Val::Px(self.bar_border_px)),
-                height: if let Some(h) = self.bar_height_px {
-                    Val::Px(h)
-                } else {
-                    Val::Auto
+        let e_bar_outer = commands
+            .spawn((
+                BackgroundColor(self.bar_background),
+                BorderColor::from(self.bar_border_color),
+                Node {
+                    border: UiRect::all(Val::Px(self.bar_border_px)),
+                    height: if let Some(h) = self.bar_height_px {
+                        Val::Px(h)
+                    } else {
+                        Val::Auto
+                    },
+                    width: if let Some(w) = self.bar_length_px {
+                        Val::Px(w)
+                    } else {
+                        Val::Auto
+                    },
+                    flex_grow: if self.bar_length_px.is_some() {
+                        0.0
+                    } else {
+                        1.0
+                    },
+                    justify_content: match self.text_position {
+                        BarTextPosition::Start => JustifyContent::FlexStart,
+                        BarTextPosition::End => JustifyContent::FlexEnd,
+                        _ => JustifyContent::Center,
+                    },
+                    align_items: AlignItems::Center,
+                    ..default()
                 },
-                width: if let Some(w) = self.bar_length_px {
-                    Val::Px(w)
-                } else {
-                    Val::Auto
-                },
-                flex_grow: if self.bar_length_px.is_some() {
-                    0.0
-                } else {
-                    1.0
-                },
-                justify_content: match self.text_position {
-                    BarTextPosition::Start => JustifyContent::FlexStart,
-                    BarTextPosition::End => JustifyContent::FlexEnd,
-                    _ => JustifyContent::Center,
-                },
-                align_items: AlignItems::Center,
-                ..default()
-            },
-        )).id();
-        let e_bar_inner_wrapper = commands.spawn((
-            Node {
+            ))
+            .id();
+        let e_bar_inner_wrapper = commands
+            .spawn((Node {
                 position_type: PositionType::Absolute,
                 top: Val::Px(0.0),
                 bottom: Val::Px(self.bar_border_px * 2.0),
                 left: Val::Px(0.0),
                 right: Val::Px(self.bar_border_px * 2.0),
                 ..default()
-            },
-        )).id();
-        let e_bar_inner = commands.spawn((
-            BarWidgetInnerBarMarker::<E> {
-                _pd: PhantomData,
-            },
-            BackgroundColor(Color::NONE),
-            Node {
-                position_type: PositionType::Absolute,
-                top: Val::Px(0.0),
-                bottom: Val::Px(0.0),
-                left: Val::Percent(0.0),
-                right: Val::Percent(100.0),
-                ..default()
-            },
-        )).id();
+            },))
+            .id();
+        let e_bar_inner = commands
+            .spawn((
+                BarWidgetInnerBarMarker::<E> { _pd: PhantomData },
+                BackgroundColor(Color::NONE),
+                Node {
+                    position_type: PositionType::Absolute,
+                    top: Val::Px(0.0),
+                    bottom: Val::Px(0.0),
+                    left: Val::Percent(0.0),
+                    right: Val::Percent(100.0),
+                    ..default()
+                },
+            ))
+            .id();
         commands.entity(e_bar_inner_wrapper).add_child(e_bar_inner);
         commands.entity(e_bar_outer).add_child(e_bar_inner_wrapper);
         let mut parts = PerfUiWidgetBarParts {
             e_bar_inner,
             e_text: None,
         };
-        let e_bar_wrapper = commands.spawn((
-            Node {
+        let e_bar_wrapper = commands
+            .spawn((Node {
                 padding: UiRect::all(Val::Px(4.0)),
                 width: Val::Px(root.values_col_width),
                 flex_grow: 0.0,
@@ -259,36 +270,36 @@ where
                     AlignItems::Stretch
                 },
                 ..default()
-            },
-        )).id();
+            },))
+            .id();
         commands.entity(e_bar_wrapper).add_child(e_bar_outer);
         if self.text_position != BarTextPosition::NoText {
-            let e_text = commands.spawn((
-                BarWidgetTextMarker::<E> {
-                    _pd: PhantomData,
-                },
-                Node {
-                    margin: match self.text_position {
-                        BarTextPosition::OutsideEnd => UiRect {
-                            left: Val::Px(4.0),
-                            ..UiRect::all(Val::Auto)
+            let e_text = commands
+                .spawn((
+                    BarWidgetTextMarker::<E> { _pd: PhantomData },
+                    Node {
+                        margin: match self.text_position {
+                            BarTextPosition::OutsideEnd => UiRect {
+                                left: Val::Px(4.0),
+                                ..UiRect::all(Val::Auto)
+                            },
+                            BarTextPosition::OutsideStart => UiRect {
+                                right: Val::Px(4.0),
+                                ..UiRect::all(Val::Auto)
+                            },
+                            _ => UiRect::all(Val::Auto),
                         },
-                        BarTextPosition::OutsideStart => UiRect {
-                            right: Val::Px(4.0),
-                            ..UiRect::all(Val::Auto)
-                        },
-                        _ => UiRect::all(Val::Auto),
+                        ..default()
                     },
-                    ..default()
-                },
-                Text(root.text_err.clone()),
-                TextFont {
-                    font: root.font_value.clone(),
-                    font_size: root.fontsize_value,
-                    ..default()
-                },
-                TextColor(self.text_color_override .unwrap_or(root.err_color))
-            )).id();
+                    Text(root.text_err.clone()),
+                    TextFont {
+                        font: root.font_value.clone(),
+                        font_size: root.fontsize_value,
+                        ..default()
+                    },
+                    TextColor(self.text_color_override.unwrap_or(root.err_color)),
+                ))
+                .id();
             match self.text_position {
                 BarTextPosition::OutsideStart | BarTextPosition::OutsideEnd => {
                     commands.entity(e_bar_wrapper).add_child(e_text);
@@ -299,34 +310,38 @@ where
             }
             parts.e_text = Some(e_text);
         }
-        let e_widget = commands.spawn((
-            parts,
-            BackgroundColor(root.inner_background_color),
-            Node {
-                flex_direction: FlexDirection::Row,
-                justify_content: JustifyContent::SpaceBetween,
-                align_items: AlignItems::Center,
-                margin: UiRect::all(Val::Px(root.inner_margin)),
-                padding: UiRect::all(Val::Px(root.inner_padding)),
-                ..default()
-            },
-        )).id();
-        if root.display_labels {
-            let e_label_wrapper = commands.spawn((
+        let e_widget = commands
+            .spawn((
+                parts,
+                BackgroundColor(root.inner_background_color),
                 Node {
+                    flex_direction: FlexDirection::Row,
+                    justify_content: JustifyContent::SpaceBetween,
+                    align_items: AlignItems::Center,
+                    margin: UiRect::all(Val::Px(root.inner_margin)),
+                    padding: UiRect::all(Val::Px(root.inner_padding)),
+                    ..default()
+                },
+            ))
+            .id();
+        if root.display_labels {
+            let e_label_wrapper = commands
+                .spawn((Node {
                     padding: UiRect::all(Val::Px(4.0)),
                     ..default()
-                },
-            )).id();
-            let e_label = commands.spawn((
-                Text(format!("{}: ", self.entry.label())),
-                TextFont {
-                    font: root.font_label.clone(),
-                    font_size: root.fontsize_label,
-                    ..default()
-                },
-                TextColor(root.label_color)
-            )).id();
+                },))
+                .id();
+            let e_label = commands
+                .spawn((
+                    Text(format!("{}: ", self.entry.label())),
+                    TextFont {
+                        font: root.font_label.clone(),
+                        font_size: root.fontsize_label,
+                        ..default()
+                    },
+                    TextColor(root.label_color),
+                ))
+                .id();
             commands.entity(e_label_wrapper).add_child(e_label);
             commands.entity(e_widget).add_child(e_label_wrapper);
         }
@@ -363,13 +378,14 @@ where
                 let value = value.and_then(|v| <f64 as NumCast>::from(v));
 
                 if let Some(value) = value {
-                    bar_color.0 = self.bar_color.get_color_for_value(value as f32)
+                    bar_color.0 = self
+                        .bar_color
+                        .get_color_for_value(value as f32)
                         .unwrap_or(Color::NONE);
                 }
 
                 if let (Some(value), Some((v_min, v_max))) = (value, self.get_range()) {
-                    let pct = ((value - v_min) / (v_max - v_min))
-                        .clamp(0.0, 1.0) * 100.0;
+                    let pct = ((value - v_min) / (v_max - v_min)).clamp(0.0, 1.0) * 100.0;
                     match self.fill_direction {
                         BarFillDirection::Left => {
                             bar_style.left = Val::Percent(0.0);
@@ -392,7 +408,9 @@ where
                 }
             }
 
-            if let Some((mut text, mut color, mut font)) = parts.e_text.and_then(|e| q_text.get_mut(e).ok()) {
+            if let Some((mut text, mut color, mut font)) =
+                parts.e_text.and_then(|e| q_text.get_mut(e).ok())
+            {
                 if let Some(value) = value {
                     let s = self.entry.format_value(&value);
                     *text = Text(s.trim().to_owned());
@@ -402,7 +420,9 @@ where
                         font.font = root.font_value.clone();
                     }
                     if self.text_color_override.is_none() {
-                        let new_color = self.entry.value_color(&value)
+                        let new_color = self
+                            .entry
+                            .value_color(&value)
                             .unwrap_or(root.default_value_color);
                         *color = TextColor(new_color);
                     }
@@ -421,4 +441,3 @@ where
         self.entry.sort_key()
     }
 }
-

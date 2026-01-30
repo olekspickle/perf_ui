@@ -1,9 +1,9 @@
 //! Predefined widget types offered by this library.
 
 #[allow(unused_imports)]
-use bevy::prelude::*;
-#[allow(unused_imports)]
 use crate::prelude::*;
+#[allow(unused_imports)]
+use bevy::prelude::*;
 
 /// Prelude of predefined widget types.
 pub mod prelude {

@@ -1,7 +1,7 @@
 //! Common framework for Perf UI Entry types (data providers)
 
-use bevy::prelude::*;
 use bevy::ecs::system::SystemParam;
+use bevy::prelude::*;
 
 #[allow(unused_imports)]
 use crate::prelude::*;
@@ -49,10 +49,7 @@ pub trait PerfUiEntry: Component {
     /// The `value` parameter is whatever that function returned.
     ///
     /// If unimplemented, the value will be formatted with its `Debug` impl.
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         format!("{:?}", value)
     }
 
@@ -62,10 +59,7 @@ pub trait PerfUiEntry: Component {
     ///
     /// Called every frame after `update_value`, unless it returned `None`.
     /// The `value` parameter is whatever that function returned.
-    fn value_color(
-        &self,
-        _value: &Self::Value,
-    ) -> Option<Color> {
+    fn value_color(&self, _value: &Self::Value) -> Option<Color> {
         None
     }
 
@@ -73,10 +67,7 @@ pub trait PerfUiEntry: Component {
     ///
     /// Called every frame after `update_value`, unless it returned `None`.
     /// The `value` parameter is whatever that function returned.
-    fn value_highlight(
-        &self,
-        _value: &Self::Value,
-    ) -> bool {
+    fn value_highlight(&self, _value: &Self::Value) -> bool {
         false
     }
 }

@@ -23,13 +23,13 @@
 //!
 //! First, make sure to add the plugin to your app:
 //!
-//! ```rust
+//! ```rust,ignore
 //! app.add_plugins(PerfUiPlugin);
 //! ```
 //!
 //! And then, pawning a Perf UI can be as simple as:
 //!
-//! ```rust
+//! ```rust,ignore
 //! commands.spawn(PerfUiAllEntries::default());
 //! ```
 //!
@@ -37,7 +37,7 @@
 //! just spawn an entity with your desired entries, instead
 //! of using this bundle.
 //!
-//! ```rust
+//! ```rust,ignore
 //! commands.spawn((
 //!     PerfUiEntryFPS::default(),
 //!     PerfUiEntryClock::default(),
@@ -62,19 +62,13 @@ use bevy::prelude::*;
 
 /// Prelude of common types for users of the library
 pub mod prelude {
-    pub use crate::{
-        PerfUiPlugin,
-        PerfUiAppExt,
-    };
-    pub use crate::ui::root::{
-        PerfUiRoot,
-        PerfUiPosition,
-    };
-    pub use crate::utils::ColorGradient;
     #[cfg(feature = "entries")]
     pub use crate::entries::prelude::*;
+    pub use crate::ui::root::{PerfUiPosition, PerfUiRoot};
+    pub use crate::utils::ColorGradient;
     #[cfg(feature = "widgets")]
     pub use crate::widgets::prelude::*;
+    pub use crate::{PerfUiAppExt, PerfUiPlugin};
 }
 
 pub mod entry;
@@ -92,15 +86,17 @@ pub struct PerfUiPlugin;
 
 impl Plugin for PerfUiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (
-            crate::ui::root::setup_perf_ui
-                .run_if(crate::ui::root::rc_setup_perf_ui)
-                .in_set(PerfUiSet::Setup),
-            crate::ui::sort_perf_ui_widgets
-                .run_if(crate::ui::rc_sort_perf_ui_widgets)
-                .after(PerfUiSet::Setup),
-        )
-            .run_if(crate::ui::rc_any_visible)
+        app.add_systems(
+            Update,
+            (
+                crate::ui::root::setup_perf_ui
+                    .run_if(crate::ui::root::rc_setup_perf_ui)
+                    .in_set(PerfUiSet::Setup),
+                crate::ui::sort_perf_ui_widgets
+                    .run_if(crate::ui::rc_sort_perf_ui_widgets)
+                    .after(PerfUiSet::Setup),
+            )
+                .run_if(crate::ui::rc_any_visible),
         );
 
         #[cfg(feature = "entries")]
@@ -140,18 +136,21 @@ impl PerfUiAppExt for App {
     fn add_perf_ui_widget<W, E>(&mut self) -> &mut Self
     where
         E: crate::entry::PerfUiEntry,
-        W: crate::ui::widget::PerfUiWidget<E>
+        W: crate::ui::widget::PerfUiWidget<E>,
     {
-        self.add_systems(Update, (
-            crate::ui::widget::setup_perf_ui_widget::<E, W>
-                .run_if(crate::ui::widget::rc_setup_perf_ui_widget::<E, W>)
-                .after(crate::ui::root::setup_perf_ui)
-                .in_set(PerfUiSet::Setup),
-            crate::ui::widget::update_perf_ui_widget::<E, W>
-                .run_if(any_with_component::<crate::ui::widget::PerfUiWidgetMarker<W>>)
-                .after(crate::ui::widget::setup_perf_ui_widget::<E, W>)
-                .in_set(PerfUiSet::Update),
-        ));
+        self.add_systems(
+            Update,
+            (
+                crate::ui::widget::setup_perf_ui_widget::<E, W>
+                    .run_if(crate::ui::widget::rc_setup_perf_ui_widget::<E, W>)
+                    .after(crate::ui::root::setup_perf_ui)
+                    .in_set(PerfUiSet::Setup),
+                crate::ui::widget::update_perf_ui_widget::<E, W>
+                    .run_if(any_with_component::<crate::ui::widget::PerfUiWidgetMarker<W>>)
+                    .after(crate::ui::widget::setup_perf_ui_widget::<E, W>)
+                    .in_set(PerfUiSet::Update),
+            ),
+        );
         self
     }
 }

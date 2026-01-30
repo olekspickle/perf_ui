@@ -10,27 +10,32 @@
 //! If you just want to see how to create a custom entry with minimal boilerplate,
 //! see the `custom_minimal` example instead.
 
-use bevy::ecs::system::SystemParam;
-use bevy::ecs::system::lifetimeless::SRes;
-use bevy::input::ButtonState;
-use bevy::input::mouse::MouseButtonInput;
 use bevy::prelude::*;
-use bevy_perf_ui::entry::PerfUiEntry;
-use bevy_perf_ui::prelude::*;
+use bevy::input::mouse::MouseButtonInput;
+use bevy::input::ButtonState;
+use bevy::ecs::system::lifetimeless::SRes;
+use bevy::ecs::system::SystemParam;
+use iyes_perf_ui::prelude::*;
+use iyes_perf_ui::entry::PerfUiEntry;
 
 use std::time::Duration;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+
         // we want Bevy to measure these values for us:
         .add_plugins(bevy::diagnostic::FrameTimeDiagnosticsPlugin::default())
+
         .add_plugins(PerfUiPlugin)
+
         // we must register our custom entry type
         .add_perf_ui_simple_entry::<PerfUiTimeSinceLastClick>()
+
         .init_resource::<TimeSinceLastClick>()
         .add_systems(Startup, setup)
         .add_systems(Update, handle_click)
+
         .run();
 }
 
@@ -89,7 +94,7 @@ impl Default for PerfUiTimeSinceLastClick {
             digits: 2,
             precision: 3,
             // get the correct value from the library
-            sort_key: bevy_perf_ui::utils::next_sort_key(),
+            sort_key: iyes_perf_ui::utils::next_sort_key(),
         }
     }
 }
@@ -124,9 +129,12 @@ impl PerfUiEntry for PerfUiTimeSinceLastClick {
         Some(d.as_secs_f64())
     }
 
-    fn format_value(&self, value: &Self::Value) -> String {
+    fn format_value(
+        &self,
+        value: &Self::Value,
+    ) -> String {
         // we can use a premade helper function for nice-looking formatting
-        let mut s = bevy_perf_ui::utils::format_pretty_float(self.digits, self.precision, *value);
+        let mut s = iyes_perf_ui::utils::format_pretty_float(self.digits, self.precision, *value);
         // (and append units to it)
         if self.display_units {
             s.push_str(" s");
@@ -135,12 +143,18 @@ impl PerfUiEntry for PerfUiTimeSinceLastClick {
     }
 
     // (optional) Called every frame to determine if a custom color should be used for the value
-    fn value_color(&self, value: &Self::Value) -> Option<Color> {
+    fn value_color(
+        &self,
+        value: &Self::Value,
+    ) -> Option<Color> {
         self.color_gradient.get_color_for_value(*value as f32)
     }
 
     // (optional) Called every frame to determine if the value should be highlighted
-    fn value_highlight(&self, value: &Self::Value) -> bool {
+    fn value_highlight(
+        &self,
+        value: &Self::Value,
+    ) -> bool {
         self.threshold_highlight
             .map(|t| (*value as f32) > t)
             .unwrap_or(false)

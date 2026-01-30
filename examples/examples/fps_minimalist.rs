@@ -3,15 +3,18 @@
 //! Shows only current and worst FPS values, horizontally with no labels.
 
 use bevy::prelude::*;
-use bevy_perf_ui::prelude::*;
+use iyes_perf_ui::prelude::*;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+
         // we want Bevy to measure these values for us:
         .add_plugins(bevy::diagnostic::FrameTimeDiagnosticsPlugin::default())
+
         .add_plugins(PerfUiPlugin)
         .add_systems(Startup, setup)
+
         .run();
 }
 

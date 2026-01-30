@@ -2,12 +2,12 @@
 
 use std::marker::PhantomData;
 
-use bevy::prelude::*;
-use bevy::ecs::system::SystemParam;
-use bevy::ecs::system::StaticSystemParam;
-use bevy::ecs::system::lifetimeless::SQuery;
-use crate::ui::root::PerfUiRoot;
 use crate::entry::PerfUiEntry;
+use crate::ui::root::PerfUiRoot;
+use bevy::ecs::system::StaticSystemParam;
+use bevy::ecs::system::SystemParam;
+use bevy::ecs::system::lifetimeless::SQuery;
+use bevy::prelude::*;
 
 use super::PerfUiSortKey;
 
@@ -101,7 +101,8 @@ pub(crate) fn setup_perf_ui_widget<E: PerfUiEntry, W: PerfUiWidget<E>>(
     // if the entry component was removed from a perf ui root entity,
     // we need to find the entity of the entry's UI and despawn it.
     for e_removed in removed.read() {
-        if let Some(e_entry) = q_widget.iter()
+        if let Some(e_entry) = q_widget
+            .iter()
             .find(|(_, marker)| marker.e_root == e_removed)
             .map(|(e, _)| e)
         {
@@ -115,16 +116,15 @@ pub(crate) fn setup_perf_ui_widget<E: PerfUiEntry, W: PerfUiWidget<E>>(
     // spawn a new UI hierarchy for the entry.
     for (e_root, root, widget) in &q_root {
         // despawn any old/existing UI hierarchy for relevant entries
-        if let Some(e_widget) = q_widget.iter()
+        if let Some(e_widget) = q_widget
+            .iter()
             .find(|(_, marker)| marker.e_root == e_root)
             .map(|(e, _)| e)
         {
             commands.entity(e_widget).despawn();
         }
 
-        let e_widget = widget.spawn(
-            root, e_root, &mut commands, &mut widget_param
-        );
+        let e_widget = widget.spawn(root, e_root, &mut commands, &mut widget_param);
         commands.entity(e_widget).insert((
             PerfUiWidgetMarker::<W> {
                 e_root,
@@ -165,7 +165,14 @@ impl<E: PerfUiEntry> PerfUiWidget<E> for E {
     type SystemParamUpdate = (
         <E as PerfUiEntry>::SystemParam,
         SQuery<&'static mut BackgroundColor, With<PerfUiWidgetMarker<E>>>,
-        SQuery<(&'static mut Text, &'static mut TextColor, &'static mut TextFont), With<SimpleWidgetTextMarker<E>>>,
+        SQuery<
+            (
+                &'static mut Text,
+                &'static mut TextColor,
+                &'static mut TextFont,
+            ),
+            With<SimpleWidgetTextMarker<E>>,
+        >,
     );
 
     fn spawn(
@@ -175,64 +182,68 @@ impl<E: PerfUiEntry> PerfUiWidget<E> for E {
         commands: &mut Commands,
         _: &mut <Self::SystemParamSpawn as SystemParam>::Item<'_, '_>,
     ) -> Entity {
-        let e_widget = commands.spawn((
-            BackgroundColor(root.inner_background_color),
-            Node {
-                flex_direction: FlexDirection::Row,
-                justify_content: JustifyContent::SpaceBetween,
-                align_items: AlignItems::Center,
-                margin: UiRect::all(Val::Px(root.inner_margin)),
-                padding: UiRect::all(Val::Px(root.inner_padding)),
-                ..default()
-            },
-        )).id();
-        if root.display_labels {
-            let e_label_wrapper = commands.spawn((
+        let e_widget = commands
+            .spawn((
+                BackgroundColor(root.inner_background_color),
                 Node {
+                    flex_direction: FlexDirection::Row,
+                    justify_content: JustifyContent::SpaceBetween,
+                    align_items: AlignItems::Center,
+                    margin: UiRect::all(Val::Px(root.inner_margin)),
+                    padding: UiRect::all(Val::Px(root.inner_padding)),
+                    ..default()
+                },
+            ))
+            .id();
+        if root.display_labels {
+            let e_label_wrapper = commands
+                .spawn((Node {
                     padding: UiRect::all(Val::Px(4.0)),
                     ..default()
-                },
-            )).id();
-            let e_label = commands.spawn((
-                Text(format!("{}: ", self.label())),
-                TextColor(root.label_color),
-                TextFont {
-                    font: root.font_label.clone(),
-                    font_size: root.fontsize_label,
-                    ..default()
-                },
-                TextLayout {
-                    linebreak: LineBreak::NoWrap,
-                    justify: JustifyText::Left,
-                },
-            )).id();
+                },))
+                .id();
+            let e_label = commands
+                .spawn((
+                    Text(format!("{}: ", self.label())),
+                    TextColor(root.label_color),
+                    TextFont {
+                        font: root.font_label.clone(),
+                        font_size: root.fontsize_label,
+                        ..default()
+                    },
+                    TextLayout {
+                        linebreak: LineBreak::NoWrap,
+                        justify: Justify::Left,
+                    },
+                ))
+                .id();
             commands.entity(e_label_wrapper).add_child(e_label);
             commands.entity(e_widget).add_child(e_label_wrapper);
         }
-        let e_text_wrapper = commands.spawn((
-            Node {
+        let e_text_wrapper = commands
+            .spawn((Node {
                 padding: UiRect::all(Val::Px(4.0)),
                 width: Val::Px(root.values_col_width),
                 justify_content: JustifyContent::FlexEnd,
                 ..default()
-            },
-        )).id();
-        let e_text = commands.spawn((
-            SimpleWidgetTextMarker::<E> {
-                _pd: PhantomData,
-            },
-            Text(root.text_err.clone()),
-            TextFont {
-                font: root.font_value.clone(),
-                font_size: root.fontsize_value,
-                ..default()
-            },
-            TextColor(root.err_color),
-            TextLayout {
-                linebreak: LineBreak::NoWrap,
-                justify: JustifyText::Right,
-            },
-        )).id();
+            },))
+            .id();
+        let e_text = commands
+            .spawn((
+                SimpleWidgetTextMarker::<E> { _pd: PhantomData },
+                Text(root.text_err.clone()),
+                TextFont {
+                    font: root.font_value.clone(),
+                    font_size: root.fontsize_value,
+                    ..default()
+                },
+                TextColor(root.err_color),
+                TextLayout {
+                    linebreak: LineBreak::NoWrap,
+                    justify: Justify::Right,
+                },
+            ))
+            .id();
         commands.entity(e_text_wrapper).add_child(e_text);
         commands.entity(e_widget).add_child(e_text_wrapper);
         e_widget
@@ -243,17 +254,15 @@ impl<E: PerfUiEntry> PerfUiWidget<E> for E {
         root: &crate::prelude::PerfUiRoot,
         _e_root: Entity,
         e_widget: Entity,
-        (
-            entry_param,
-            q_widget,
-            q_text,
-        ): &mut <Self::SystemParamUpdate as SystemParam>::Item<'_, '_>,
+        (entry_param, q_widget, q_text): &mut <Self::SystemParamUpdate as SystemParam>::Item<
+            '_,
+            '_,
+        >,
     ) {
         for (mut text, mut color, mut font) in q_text.iter_mut() {
             let mut entry_highlight = false;
             if let Some(value) = self.update_value(entry_param) {
-                let new_color = self.value_color(&value)
-                    .unwrap_or(root.default_value_color);
+                let new_color = self.value_color(&value).unwrap_or(root.default_value_color);
                 let s = self.format_value(&value);
                 *text = Text(s);
                 *color = TextColor(new_color);

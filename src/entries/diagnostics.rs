@@ -1,16 +1,18 @@
 //! Perf UI Entries based on Bevy Diagnostics
 
-use bevy::prelude::*;
-use bevy::diagnostic::{DiagnosticsStore, EntityCountDiagnosticsPlugin, FrameTimeDiagnosticsPlugin};
-use bevy::ecs::system::lifetimeless::SRes;
+use bevy::diagnostic::{
+    DiagnosticsStore, EntityCountDiagnosticsPlugin, FrameTimeDiagnosticsPlugin,
+};
 use bevy::ecs::system::SystemParam;
+use bevy::ecs::system::lifetimeless::SRes;
 use bevy::math::FloatOrd;
+use bevy::prelude::*;
 
 #[cfg(feature = "sysinfo")]
 use bevy::diagnostic::SystemInformationDiagnosticsPlugin;
 
-use crate::prelude::*;
 use crate::entry::*;
+use crate::prelude::*;
 use crate::utils::*;
 
 /// Perf UI Entry to display Bevy's built-in FPS measurement diagnostic.
@@ -298,7 +300,8 @@ impl Default for PerfUiEntryFrameTime {
                 1000.0 / 120.0,
                 1000.0 / 60.0,
                 1000.0 / 30.0,
-            ).unwrap(),
+            )
+            .unwrap(),
             threshold_highlight: Some(1000.0 / 20.0),
             max_value_hint: None,
             smoothed: false,
@@ -362,7 +365,8 @@ impl Default for PerfUiEntryFrameTimeWorst {
                 1000.0 / 120.0,
                 1000.0 / 60.0,
                 1000.0 / 30.0,
-            ).unwrap(),
+            )
+            .unwrap(),
             threshold_highlight: Some(1000.0 / 20.0),
             max_value_hint: None,
             digits: 2,
@@ -651,27 +655,20 @@ impl PerfUiEntry for PerfUiEntryFPS {
         diagnostics: &mut <Self::SystemParam as SystemParam>::Item<'_, '_>,
     ) -> Option<Self::Value> {
         Some(if self.smoothed {
-            diagnostics.get(&FrameTimeDiagnosticsPlugin::FPS)?.smoothed()?
+            diagnostics
+                .get(&FrameTimeDiagnosticsPlugin::FPS)?
+                .smoothed()?
         } else {
             diagnostics.get(&FrameTimeDiagnosticsPlugin::FPS)?.value()?
         })
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         format_pretty_float(self.digits, self.precision, *value)
     }
-    fn value_color(
-        &self,
-        value: &Self::Value,
-    ) -> Option<Color> {
+    fn value_color(&self, value: &Self::Value) -> Option<Color> {
         self.color_gradient.get_color_for_value(*value as f32)
     }
-    fn value_highlight(
-        &self,
-        value: &Self::Value,
-    ) -> bool {
+    fn value_highlight(&self, value: &Self::Value) -> bool {
         self.threshold_highlight
             .map(|t| (*value as f32) < t)
             .unwrap_or(false)
@@ -683,14 +680,16 @@ impl PerfUiEntry for PerfUiEntryFPS {
 
 impl PerfUiEntryDisplayRange for PerfUiEntryFPS {
     fn max_value_hint(&self) -> Option<Self::Value> {
-        self.max_value_hint.or(
-            match (self.threshold_highlight, self.color_gradient.max_stop()) {
-                (Some(x), None) => Some(x),
-                (None, Some((x, _))) => Some(*x),
-                (Some(a), Some((b, _))) => Some(a.max(*b)),
-                (None, None) => None,
-            }
-        ).map(|v| v as f64)
+        self.max_value_hint
+            .or(
+                match (self.threshold_highlight, self.color_gradient.max_stop()) {
+                    (Some(x), None) => Some(x),
+                    (None, Some((x, _))) => Some(*x),
+                    (Some(a), Some((b, _))) => Some(a.max(*b)),
+                    (None, None) => None,
+                },
+            )
+            .map(|v| v as f64)
     }
     fn min_value_hint(&self) -> Option<Self::Value> {
         Some(0.0)
@@ -712,32 +711,28 @@ impl PerfUiEntry for PerfUiEntryFPSWorst {
         &self,
         diagnostics: &mut <Self::SystemParam as SystemParam>::Item<'_, '_>,
     ) -> Option<Self::Value> {
-        Some(diagnostics.get(&FrameTimeDiagnosticsPlugin::FPS)?
-            .values()
-            .filter_map(|f| if !f.is_nan() {
-                Some(FloatOrd(*f as f32))
-            } else {
-                None
-            })
-            .min()?.0
+        Some(
+            diagnostics
+                .get(&FrameTimeDiagnosticsPlugin::FPS)?
+                .values()
+                .filter_map(|f| {
+                    if !f.is_nan() {
+                        Some(FloatOrd(*f as f32))
+                    } else {
+                        None
+                    }
+                })
+                .min()?
+                .0,
         )
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         format_pretty_float(self.digits, self.precision, *value as f64)
     }
-    fn value_color(
-        &self,
-        value: &Self::Value,
-    ) -> Option<Color> {
+    fn value_color(&self, value: &Self::Value) -> Option<Color> {
         self.color_gradient.get_color_for_value(*value)
     }
-    fn value_highlight(
-        &self,
-        value: &Self::Value,
-    ) -> bool {
+    fn value_highlight(&self, value: &Self::Value) -> bool {
         self.threshold_highlight
             .map(|t| *value < t)
             .unwrap_or(false)
@@ -755,7 +750,7 @@ impl PerfUiEntryDisplayRange for PerfUiEntryFPSWorst {
                 (None, Some((x, _))) => Some(*x),
                 (Some(a), Some((b, _))) => Some(a.max(*b)),
                 (None, None) => None,
-            }
+            },
         )
     }
     fn min_value_hint(&self) -> Option<Self::Value> {
@@ -778,26 +773,19 @@ impl PerfUiEntry for PerfUiEntryFPSAverage {
         &self,
         diagnostics: &mut <Self::SystemParam as SystemParam>::Item<'_, '_>,
     ) -> Option<Self::Value> {
-        Some(diagnostics.get(&FrameTimeDiagnosticsPlugin::FPS)?
-            .average()? as f32
+        Some(
+            diagnostics
+                .get(&FrameTimeDiagnosticsPlugin::FPS)?
+                .average()? as f32,
         )
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         format_pretty_float(self.digits, self.precision, *value as f64)
     }
-    fn value_color(
-        &self,
-        value: &Self::Value,
-    ) -> Option<Color> {
+    fn value_color(&self, value: &Self::Value) -> Option<Color> {
         self.color_gradient.get_color_for_value(*value)
     }
-    fn value_highlight(
-        &self,
-        value: &Self::Value,
-    ) -> bool {
+    fn value_highlight(&self, value: &Self::Value) -> bool {
         self.threshold_highlight
             .map(|t| *value < t)
             .unwrap_or(false)
@@ -815,7 +803,7 @@ impl PerfUiEntryDisplayRange for PerfUiEntryFPSAverage {
                 (None, Some((x, _))) => Some(*x),
                 (Some(a), Some((b, _))) => Some(a.max(*b)),
                 (None, None) => None,
-            }
+            },
         )
     }
     fn min_value_hint(&self) -> Option<Self::Value> {
@@ -841,10 +829,12 @@ impl PerfUiEntry for PerfUiEntryFPSPctLow {
         let mut values: Vec<_> = diagnostics
             .get(&FrameTimeDiagnosticsPlugin::FPS)?
             .values()
-            .filter_map(|f| if !f.is_nan() {
-                Some(FloatOrd(*f as f32))
-            } else {
-                None
+            .filter_map(|f| {
+                if !f.is_nan() {
+                    Some(FloatOrd(*f as f32))
+                } else {
+                    None
+                }
             })
             .collect();
 
@@ -861,22 +851,13 @@ impl PerfUiEntry for PerfUiEntryFPSPctLow {
         let sum: f32 = values.into_iter().take(bottom_len).map(|fo| fo.0).sum();
         Some(sum / bottom_len as f32)
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         format_pretty_float(self.digits, self.precision, *value as f64)
     }
-    fn value_color(
-        &self,
-        value: &Self::Value,
-    ) -> Option<Color> {
+    fn value_color(&self, value: &Self::Value) -> Option<Color> {
         self.color_gradient.get_color_for_value(*value)
     }
-    fn value_highlight(
-        &self,
-        value: &Self::Value,
-    ) -> bool {
+    fn value_highlight(&self, value: &Self::Value) -> bool {
         self.threshold_highlight
             .map(|t| *value < t)
             .unwrap_or(false)
@@ -894,7 +875,7 @@ impl PerfUiEntryDisplayRange for PerfUiEntryFPSPctLow {
                 (None, Some((x, _))) => Some(*x),
                 (Some(a), Some((b, _))) => Some(a.max(*b)),
                 (None, None) => None,
-            }
+            },
         )
     }
     fn min_value_hint(&self) -> Option<Self::Value> {
@@ -918,31 +899,26 @@ impl PerfUiEntry for PerfUiEntryFrameTime {
         diagnostics: &mut <Self::SystemParam as SystemParam>::Item<'_, '_>,
     ) -> Option<Self::Value> {
         Some(if self.smoothed {
-            diagnostics.get(&FrameTimeDiagnosticsPlugin::FRAME_TIME)?.smoothed()?
+            diagnostics
+                .get(&FrameTimeDiagnosticsPlugin::FRAME_TIME)?
+                .smoothed()?
         } else {
-            diagnostics.get(&FrameTimeDiagnosticsPlugin::FRAME_TIME)?.value()?
+            diagnostics
+                .get(&FrameTimeDiagnosticsPlugin::FRAME_TIME)?
+                .value()?
         })
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         let mut s = format_pretty_float(self.digits, self.precision, *value);
         if self.display_units {
             s.push_str(" ms");
         }
         s
     }
-    fn value_color(
-        &self,
-        value: &Self::Value,
-    ) -> Option<Color> {
+    fn value_color(&self, value: &Self::Value) -> Option<Color> {
         self.color_gradient.get_color_for_value(*value as f32)
     }
-    fn value_highlight(
-        &self,
-        value: &Self::Value,
-    ) -> bool {
+    fn value_highlight(&self, value: &Self::Value) -> bool {
         self.threshold_highlight
             .map(|t| (*value as f32) > t)
             .unwrap_or(false)
@@ -954,14 +930,16 @@ impl PerfUiEntry for PerfUiEntryFrameTime {
 
 impl PerfUiEntryDisplayRange for PerfUiEntryFrameTime {
     fn max_value_hint(&self) -> Option<Self::Value> {
-        self.max_value_hint.or(
-            match (self.threshold_highlight, self.color_gradient.max_stop()) {
-                (Some(x), None) => Some(x),
-                (None, Some((x, _))) => Some(*x),
-                (Some(a), Some((b, _))) => Some(a.max(*b)),
-                (None, None) => None,
-            }
-        ).map(|v| v as f64)
+        self.max_value_hint
+            .or(
+                match (self.threshold_highlight, self.color_gradient.max_stop()) {
+                    (Some(x), None) => Some(x),
+                    (None, Some((x, _))) => Some(*x),
+                    (Some(a), Some((b, _))) => Some(a.max(*b)),
+                    (None, None) => None,
+                },
+            )
+            .map(|v| v as f64)
     }
     fn min_value_hint(&self) -> Option<Self::Value> {
         Some(0.0)
@@ -983,36 +961,32 @@ impl PerfUiEntry for PerfUiEntryFrameTimeWorst {
         &self,
         diagnostics: &mut <Self::SystemParam as SystemParam>::Item<'_, '_>,
     ) -> Option<Self::Value> {
-        Some(diagnostics.get(&FrameTimeDiagnosticsPlugin::FRAME_TIME)?
-            .values()
-            .filter_map(|f| if !f.is_nan() {
-                Some(FloatOrd(*f as f32))
-            } else {
-                None
-            })
-            .max()?.0
+        Some(
+            diagnostics
+                .get(&FrameTimeDiagnosticsPlugin::FRAME_TIME)?
+                .values()
+                .filter_map(|f| {
+                    if !f.is_nan() {
+                        Some(FloatOrd(*f as f32))
+                    } else {
+                        None
+                    }
+                })
+                .max()?
+                .0,
         )
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         let mut s = format_pretty_float(self.digits, self.precision, *value as f64);
         if self.display_units {
             s.push_str(" ms");
         }
         s
     }
-    fn value_color(
-        &self,
-        value: &Self::Value,
-    ) -> Option<Color> {
+    fn value_color(&self, value: &Self::Value) -> Option<Color> {
         self.color_gradient.get_color_for_value(*value)
     }
-    fn value_highlight(
-        &self,
-        value: &Self::Value,
-    ) -> bool {
+    fn value_highlight(&self, value: &Self::Value) -> bool {
         self.threshold_highlight
             .map(|t| *value > t)
             .unwrap_or(false)
@@ -1030,7 +1004,7 @@ impl PerfUiEntryDisplayRange for PerfUiEntryFrameTimeWorst {
                 (None, Some((x, _))) => Some(*x),
                 (Some(a), Some((b, _))) => Some(a.max(*b)),
                 (None, None) => None,
-            }
+            },
         )
     }
     fn min_value_hint(&self) -> Option<Self::Value> {
@@ -1053,12 +1027,13 @@ impl PerfUiEntry for PerfUiEntryFrameCount {
         &self,
         diagnostics: &mut <Self::SystemParam as SystemParam>::Item<'_, '_>,
     ) -> Option<Self::Value> {
-        Some(diagnostics.get(&FrameTimeDiagnosticsPlugin::FRAME_COUNT)?.value()? as u32)
+        Some(
+            diagnostics
+                .get(&FrameTimeDiagnosticsPlugin::FRAME_COUNT)?
+                .value()? as u32,
+        )
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         format_pretty_int(self.digits, *value as i64)
     }
     fn sort_key(&self) -> i32 {
@@ -1081,24 +1056,19 @@ impl PerfUiEntry for PerfUiEntryEntityCount {
         &self,
         diagnostics: &mut <Self::SystemParam as SystemParam>::Item<'_, '_>,
     ) -> Option<Self::Value> {
-        Some(diagnostics.get(&EntityCountDiagnosticsPlugin::ENTITY_COUNT)?.value()? as u32)
+        Some(
+            diagnostics
+                .get(&EntityCountDiagnosticsPlugin::ENTITY_COUNT)?
+                .value()? as u32,
+        )
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         format_pretty_int(self.digits, *value as i64)
     }
-    fn value_color(
-        &self,
-        value: &Self::Value,
-    ) -> Option<Color> {
+    fn value_color(&self, value: &Self::Value) -> Option<Color> {
         self.color_gradient.get_color_for_value(*value as f32)
     }
-    fn value_highlight(
-        &self,
-        value: &Self::Value,
-    ) -> bool {
+    fn value_highlight(&self, value: &Self::Value) -> bool {
         self.threshold_highlight
             .map(|t| *value > t)
             .unwrap_or(false)
@@ -1116,7 +1086,7 @@ impl PerfUiEntryDisplayRange for PerfUiEntryEntityCount {
                 (None, Some((x, _))) => Some(*x as u32),
                 (Some(a), Some((b, _))) => Some(a.max(*b as u32)),
                 (None, None) => None,
-            }
+            },
         )
     }
     fn min_value_hint(&self) -> Option<Self::Value> {
@@ -1141,29 +1111,24 @@ impl PerfUiEntry for PerfUiEntryCpuUsage {
         diagnostics: &mut <Self::SystemParam as SystemParam>::Item<'_, '_>,
     ) -> Option<Self::Value> {
         Some(if self.smoothed {
-            diagnostics.get(&SystemInformationDiagnosticsPlugin::PROCESS_CPU_USAGE)?.smoothed()?
+            diagnostics
+                .get(&SystemInformationDiagnosticsPlugin::PROCESS_CPU_USAGE)?
+                .smoothed()?
         } else {
-            diagnostics.get(&SystemInformationDiagnosticsPlugin::PROCESS_CPU_USAGE)?.value()?
+            diagnostics
+                .get(&SystemInformationDiagnosticsPlugin::PROCESS_CPU_USAGE)?
+                .value()?
         })
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         let mut s = format_pretty_float(2, self.precision, *value);
         s.push('%');
         s
     }
-    fn value_color(
-        &self,
-        value: &Self::Value,
-    ) -> Option<Color> {
+    fn value_color(&self, value: &Self::Value) -> Option<Color> {
         self.color_gradient.get_color_for_value(*value as f32)
     }
-    fn value_highlight(
-        &self,
-        value: &Self::Value,
-    ) -> bool {
+    fn value_highlight(&self, value: &Self::Value) -> bool {
         self.threshold_highlight
             .map(|t| (*value as f32) > t)
             .unwrap_or(false)
@@ -1200,29 +1165,24 @@ impl PerfUiEntry for PerfUiEntrySystemCpuUsage {
         diagnostics: &mut <Self::SystemParam as SystemParam>::Item<'_, '_>,
     ) -> Option<Self::Value> {
         Some(if self.smoothed {
-            diagnostics.get(&SystemInformationDiagnosticsPlugin::SYSTEM_CPU_USAGE)?.smoothed()?
+            diagnostics
+                .get(&SystemInformationDiagnosticsPlugin::SYSTEM_CPU_USAGE)?
+                .smoothed()?
         } else {
-            diagnostics.get(&SystemInformationDiagnosticsPlugin::SYSTEM_CPU_USAGE)?.value()?
+            diagnostics
+                .get(&SystemInformationDiagnosticsPlugin::SYSTEM_CPU_USAGE)?
+                .value()?
         })
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         let mut s = format_pretty_float(2, self.precision, *value);
         s.push('%');
         s
     }
-    fn value_color(
-        &self,
-        value: &Self::Value,
-    ) -> Option<Color> {
+    fn value_color(&self, value: &Self::Value) -> Option<Color> {
         self.color_gradient.get_color_for_value(*value as f32)
     }
-    fn value_highlight(
-        &self,
-        value: &Self::Value,
-    ) -> bool {
+    fn value_highlight(&self, value: &Self::Value) -> bool {
         self.threshold_highlight
             .map(|t| (*value as f32) > t)
             .unwrap_or(false)
@@ -1259,31 +1219,26 @@ impl PerfUiEntry for PerfUiEntryMemUsage {
         diagnostics: &mut <Self::SystemParam as SystemParam>::Item<'_, '_>,
     ) -> Option<Self::Value> {
         Some(if self.smoothed {
-            diagnostics.get(&SystemInformationDiagnosticsPlugin::PROCESS_MEM_USAGE)?.smoothed()?
+            diagnostics
+                .get(&SystemInformationDiagnosticsPlugin::PROCESS_MEM_USAGE)?
+                .smoothed()?
         } else {
-            diagnostics.get(&SystemInformationDiagnosticsPlugin::PROCESS_MEM_USAGE)?.value()?
+            diagnostics
+                .get(&SystemInformationDiagnosticsPlugin::PROCESS_MEM_USAGE)?
+                .value()?
         })
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         let mut s = format_pretty_float(2, self.precision, *value);
         if self.display_units {
             s.push_str(" GiB");
         }
         s
     }
-    fn value_color(
-        &self,
-        value: &Self::Value,
-    ) -> Option<Color> {
+    fn value_color(&self, value: &Self::Value) -> Option<Color> {
         self.color_gradient.get_color_for_value(*value as f32)
     }
-    fn value_highlight(
-        &self,
-        value: &Self::Value,
-    ) -> bool {
+    fn value_highlight(&self, value: &Self::Value) -> bool {
         self.threshold_highlight
             .map(|t| (*value as f32) > t)
             .unwrap_or(false)
@@ -1296,14 +1251,16 @@ impl PerfUiEntry for PerfUiEntryMemUsage {
 #[cfg(feature = "sysinfo")]
 impl PerfUiEntryDisplayRange for PerfUiEntryMemUsage {
     fn max_value_hint(&self) -> Option<Self::Value> {
-        self.max_value_hint.or(
-            match (self.threshold_highlight, self.color_gradient.max_stop()) {
-                (Some(x), None) => Some(x),
-                (None, Some((x, _))) => Some(*x),
-                (Some(a), Some((b, _))) => Some(a.max(*b)),
-                (None, None) => None,
-            }
-        ).map(|v| v as f64)
+        self.max_value_hint
+            .or(
+                match (self.threshold_highlight, self.color_gradient.max_stop()) {
+                    (Some(x), None) => Some(x),
+                    (None, Some((x, _))) => Some(*x),
+                    (Some(a), Some((b, _))) => Some(a.max(*b)),
+                    (None, None) => None,
+                },
+            )
+            .map(|v| v as f64)
     }
     fn min_value_hint(&self) -> Option<Self::Value> {
         Some(0.0)
@@ -1327,29 +1284,24 @@ impl PerfUiEntry for PerfUiEntrySystemMemUsage {
         diagnostics: &mut <Self::SystemParam as SystemParam>::Item<'_, '_>,
     ) -> Option<Self::Value> {
         Some(if self.smoothed {
-            diagnostics.get(&SystemInformationDiagnosticsPlugin::SYSTEM_MEM_USAGE)?.smoothed()?
+            diagnostics
+                .get(&SystemInformationDiagnosticsPlugin::SYSTEM_MEM_USAGE)?
+                .smoothed()?
         } else {
-            diagnostics.get(&SystemInformationDiagnosticsPlugin::SYSTEM_MEM_USAGE)?.value()?
+            diagnostics
+                .get(&SystemInformationDiagnosticsPlugin::SYSTEM_MEM_USAGE)?
+                .value()?
         })
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         let mut s = format_pretty_float(2, self.precision, *value);
         s.push('%');
         s
     }
-    fn value_color(
-        &self,
-        value: &Self::Value,
-    ) -> Option<Color> {
+    fn value_color(&self, value: &Self::Value) -> Option<Color> {
         self.color_gradient.get_color_for_value(*value as f32)
     }
-    fn value_highlight(
-        &self,
-        value: &Self::Value,
-    ) -> bool {
+    fn value_highlight(&self, value: &Self::Value) -> bool {
         self.threshold_highlight
             .map(|t| (*value as f32) > t)
             .unwrap_or(false)

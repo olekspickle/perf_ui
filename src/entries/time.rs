@@ -1,12 +1,12 @@
 //! Perf UI Entries for displaying the current time.
 
-use bevy::prelude::*;
-use bevy::ecs::system::lifetimeless::SRes;
 use bevy::ecs::system::SystemParam;
+use bevy::ecs::system::lifetimeless::SRes;
+use bevy::prelude::*;
 use std::time::Duration;
 
-use crate::prelude::*;
 use crate::entry::*;
+use crate::prelude::*;
 use crate::utils::*;
 
 /// Perf UI Entry to display the time the Bevy app has been running.
@@ -198,10 +198,7 @@ impl PerfUiEntry for PerfUiEntryRunningTime {
             Some(elapsed)
         }
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         if self.format_hms {
             format_pretty_time(self.precision, *value)
         } else {
@@ -244,10 +241,7 @@ impl PerfUiEntry for PerfUiEntryClock {
 
         get_system_clock_utc()
     }
-    fn format_value(
-        &self,
-        &(h, m, s, nanos): &Self::Value,
-    ) -> String {
+    fn format_value(&self, &(h, m, s, nanos): &Self::Value) -> String {
         format_pretty_time_hms(self.precision, h, m, s, nanos)
     }
 }
@@ -272,10 +266,7 @@ impl PerfUiEntry for PerfUiEntryFixedTimeStep {
     ) -> Option<Self::Value> {
         Some(time.timestep())
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         let (unit, value) = if self.as_hz {
             (" Hz", 1_000_000_000f64 / value.as_nanos() as f64)
         } else {
@@ -313,10 +304,7 @@ impl PerfUiEntry for PerfUiEntryFixedOverstep {
             time.overstep().as_secs_f64() * 1000.0
         })
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         let mut s = format_pretty_float(self.digits, self.precision, *value);
         if self.as_percent {
             s.push('%');
@@ -348,7 +336,9 @@ fn get_system_clock_local() -> Option<(u32, u32, u32, u32)> {
 }
 
 fn get_system_clock_utc() -> Option<(u32, u32, u32, u32)> {
-    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).ok()?;
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .ok()?;
     let secs = now.as_secs();
     let h = (secs / 3600) % 24;
     let m = (secs / 60) % 60;

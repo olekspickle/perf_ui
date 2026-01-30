@@ -1,18 +1,21 @@
 //! This example shows how to customize the appearance of your Perf UIs.
 
 use bevy::prelude::*;
-use bevy_perf_ui::prelude::*;
-use bevy_perf_ui::widgets::bar::{BarFillDirection, BarTextPosition};
+use iyes_perf_ui::prelude::*;
+use iyes_perf_ui::widgets::bar::{BarFillDirection, BarTextPosition};
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+
         // we want Bevy to measure these values for us:
         .add_plugins(bevy::diagnostic::FrameTimeDiagnosticsPlugin::default())
         .add_plugins(bevy::diagnostic::EntityCountDiagnosticsPlugin::default())
         .add_plugins(bevy::diagnostic::SystemInformationDiagnosticsPlugin)
+
         .add_plugins(PerfUiPlugin)
         .add_systems(Startup, setup)
+
         .run();
 }
 
@@ -77,7 +80,7 @@ fn setup(mut commands: Commands, ass: Res<AssetServer>) {
             label: "Frame Duration (current)".into(),
             color_gradient: ColorGradient::new().with_stops([
                 (1.0, Color::srgb(0.15, 0.8, 0.9)),
-                (8.0, Color::srgb(0.7, 0.15, 0.9)),
+                (8.0, Color::srgb(0.7, 0.15, 0.9))
             ]),
             threshold_highlight: Some(10.0),
             digits: 2,
@@ -88,7 +91,7 @@ fn setup(mut commands: Commands, ass: Res<AssetServer>) {
             label: "Frame Duration (worst)".into(),
             color_gradient: ColorGradient::new().with_stops([
                 (1.0, Color::srgb(0.15, 0.8, 0.9)),
-                (8.0, Color::srgb(0.7, 0.15, 0.9)),
+                (8.0, Color::srgb(0.7, 0.15, 0.9))
             ]),
             threshold_highlight: Some(10.0),
             digits: 2,
@@ -110,8 +113,10 @@ fn setup(mut commands: Commands, ass: Res<AssetServer>) {
             fill_direction: BarFillDirection::Center,
             bar_background: Color::srgba(0.0, 0.0, 0.0, 0.5),
             // The color gradient also affects the range of values for the bar
-            bar_color: ColorGradient::new()
-                .with_stops([(0.0, Color::BLACK), (200.0, Color::WHITE)]),
+            bar_color: ColorGradient::new().with_stops([
+                (0.0, Color::BLACK),
+                (200.0, Color::WHITE),
+            ]),
             bar_border_color: Color::WHITE,
             bar_border_px: 2.0,
             ..PerfUiWidgetBar::new(PerfUiEntryEntityCount {

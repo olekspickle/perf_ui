@@ -24,7 +24,7 @@ pub enum PerfUiPosition {
 /// To create a Perf UI, spawn an entity with this component
 /// + any components for the entries you want to display:
 ///
-/// ```rust
+/// ```rust,ignore
 /// commands.spawn((
 ///     PerfUiRoot {
 ///         // ... settings ...
@@ -178,16 +178,22 @@ impl PerfUiPosition {
     }
 }
 
-pub(crate) fn rc_setup_perf_ui(
-    q: Query<(), Changed<PerfUiRoot>>,
-) -> bool {
+pub(crate) fn rc_setup_perf_ui(q: Query<(), Changed<PerfUiRoot>>) -> bool {
     !q.is_empty()
 }
 
 pub(crate) fn setup_perf_ui(
     mut commands: Commands,
     fonts: Res<Assets<Font>>,
-    mut q_root: Query<(Entity, &PerfUiRoot, Option<&mut BackgroundColor>, Option<&mut Node>), Changed<PerfUiRoot>>,
+    mut q_root: Query<
+        (
+            Entity,
+            &PerfUiRoot,
+            Option<&mut BackgroundColor>,
+            Option<&mut Node>,
+        ),
+        Changed<PerfUiRoot>,
+    >,
 ) {
     for (e, perf_ui, background, style) in &mut q_root {
         if (perf_ui.font_label == Handle::default()
@@ -195,7 +201,9 @@ pub(crate) fn setup_perf_ui(
             || perf_ui.font_highlight == Handle::default())
             && !fonts.contains(&Handle::default())
         {
-            error!("Bevy's default font is missing. Either enable Bevy's `default_font` cargo feature, or specify custom fonts in `PerfUiRoot`.");
+            error!(
+                "Bevy's default font is missing. Either enable Bevy's `default_font` cargo feature, or specify custom fonts in `PerfUiRoot`."
+            );
         }
         let new_style = Node {
             position_type: PositionType::Absolute,
@@ -219,7 +227,7 @@ pub(crate) fn setup_perf_ui(
             commands.entity(e).insert((
                 Name::new("PerfUi"),
                 BackgroundColor(perf_ui.background_color),
-                new_style
+                new_style,
             ));
         }
     }

@@ -1,14 +1,14 @@
 //! Perf UI Entries for info about application windows.
 
-use bevy::prelude::*;
-use bevy::ecs::system::lifetimeless::SQuery;
 use bevy::ecs::system::SystemParam;
+use bevy::ecs::system::lifetimeless::SQuery;
+use bevy::prelude::*;
 use bevy::window::PresentMode;
 use bevy::window::PrimaryWindow;
 use bevy::window::WindowMode;
 
-use crate::prelude::*;
 use crate::entry::*;
+use crate::prelude::*;
 use crate::utils::*;
 
 /// Perf UI Entry to display the window mode (windowed, fullscreen, etc).
@@ -286,10 +286,7 @@ impl PerfUiEntry for PerfUiEntryWindowScaleFactor {
             q_primary.single().ok().map(|w| w.scale_factor())
         }
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         format_pretty_float(self.digits, self.precision, *value as f64)
     }
 }
@@ -317,50 +314,56 @@ impl PerfUiEntry for PerfUiEntryWindowResolution {
     ) -> Option<Self::Value> {
         if let Some(e) = self.window {
             if self.physical_pixels {
-                q_any.get(e).ok().map(|w| Vec2::new(
-                    w.physical_width() as f32,
-                    w.physical_height() as f32,
-                ))
+                q_any
+                    .get(e)
+                    .ok()
+                    .map(|w| Vec2::new(w.physical_width() as f32, w.physical_height() as f32))
             } else {
-                q_any.get(e).ok().map(|w| Vec2::new(
-                    w.width(),
-                    w.height(),
-                ))
+                q_any.get(e).ok().map(|w| Vec2::new(w.width(), w.height()))
             }
         } else {
             if self.physical_pixels {
-                q_primary.single().ok().map(|w| Vec2::new(
-                    w.physical_width() as f32,
-                    w.physical_height() as f32,
-                ))
+                q_primary
+                    .single()
+                    .ok()
+                    .map(|w| Vec2::new(w.physical_width() as f32, w.physical_height() as f32))
             } else {
-                q_primary.single().ok().map(|w| Vec2::new(
-                    w.width(),
-                    w.height(),
-                ))
+                q_primary
+                    .single()
+                    .ok()
+                    .map(|w| Vec2::new(w.width(), w.height()))
             }
         }
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         match (self.display_axis, self.display_units) {
             (true, true) => format!(
                 "X: {:.p$} px{}Y: {:.p$} px",
-                value.x, self.separator, value.y, p = self.precision as usize
+                value.x,
+                self.separator,
+                value.y,
+                p = self.precision as usize
             ),
             (true, false) => format!(
                 "X: {:.p$}{}Y: {:.p$}",
-                value.x, self.separator, value.y, p = self.precision as usize
+                value.x,
+                self.separator,
+                value.y,
+                p = self.precision as usize
             ),
             (false, true) => format!(
                 "{:.p$} px{}{:.p$} px",
-                value.x, self.separator, value.y, p = self.precision as usize
+                value.x,
+                self.separator,
+                value.y,
+                p = self.precision as usize
             ),
             (false, false) => format!(
                 "{:.p$}{}{:.p$}",
-                value.x, self.separator, value.y, p = self.precision as usize
+                value.x,
+                self.separator,
+                value.y,
+                p = self.precision as usize
             ),
         }
     }
@@ -401,26 +404,35 @@ impl PerfUiEntry for PerfUiEntryCursorPosition {
             }
         }
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         match (self.display_axis, self.display_units) {
             (true, true) => format!(
                 "X: {:.p$} px{}Y: {:.p$} px",
-                value.x, self.separator, value.y, p = self.precision as usize
+                value.x,
+                self.separator,
+                value.y,
+                p = self.precision as usize
             ),
             (true, false) => format!(
                 "X: {:.p$}{}Y: {:.p$}",
-                value.x, self.separator, value.y, p = self.precision as usize
+                value.x,
+                self.separator,
+                value.y,
+                p = self.precision as usize
             ),
             (false, true) => format!(
                 "{:.p$} px{}{:.p$} px",
-                value.x, self.separator, value.y, p = self.precision as usize
+                value.x,
+                self.separator,
+                value.y,
+                p = self.precision as usize
             ),
             (false, false) => format!(
                 "{:.p$}{}{:.p$}",
-                value.x, self.separator, value.y, p = self.precision as usize
+                value.x,
+                self.separator,
+                value.y,
+                p = self.precision as usize
             ),
         }
     }

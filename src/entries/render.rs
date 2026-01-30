@@ -1,12 +1,12 @@
 //! Perf UI Entries for Bevy Render
 
-use bevy::prelude::*;
 use bevy::diagnostic::DiagnosticsStore;
-use bevy::ecs::system::lifetimeless::SRes;
 use bevy::ecs::system::SystemParam;
+use bevy::ecs::system::lifetimeless::SRes;
+use bevy::prelude::*;
 
-use crate::prelude::*;
 use crate::entry::*;
+use crate::prelude::*;
 use crate::utils::*;
 
 /// Perf UI Entry to display the CPU time spent on rendering.
@@ -70,7 +70,8 @@ impl Default for PerfUiEntryRenderCpuTime {
                 1000.0 / 120.0,
                 1000.0 / 60.0,
                 1000.0 / 30.0,
-            ).unwrap(),
+            )
+            .unwrap(),
             threshold_highlight: Some(1000.0 / 20.0),
             max_value_hint: None,
             smoothed: false,
@@ -141,7 +142,8 @@ impl Default for PerfUiEntryRenderGpuTime {
                 1000.0 / 120.0,
                 1000.0 / 60.0,
                 1000.0 / 30.0,
-            ).unwrap(),
+            )
+            .unwrap(),
             threshold_highlight: Some(1000.0 / 20.0),
             max_value_hint: None,
             smoothed: false,
@@ -188,26 +190,17 @@ impl PerfUiEntry for PerfUiEntryRenderCpuTime {
         }
         total
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         let mut s = format_pretty_float(self.digits, self.precision, *value);
         if self.display_units {
             s.push_str(" ms");
         }
         s
     }
-    fn value_color(
-        &self,
-        value: &Self::Value,
-    ) -> Option<Color> {
+    fn value_color(&self, value: &Self::Value) -> Option<Color> {
         self.color_gradient.get_color_for_value(*value as f32)
     }
-    fn value_highlight(
-        &self,
-        value: &Self::Value,
-    ) -> bool {
+    fn value_highlight(&self, value: &Self::Value) -> bool {
         self.threshold_highlight
             .map(|t| (*value as f32) > t)
             .unwrap_or(false)
@@ -219,14 +212,16 @@ impl PerfUiEntry for PerfUiEntryRenderCpuTime {
 
 impl PerfUiEntryDisplayRange for PerfUiEntryRenderCpuTime {
     fn max_value_hint(&self) -> Option<Self::Value> {
-        self.max_value_hint.or(
-            match (self.threshold_highlight, self.color_gradient.max_stop()) {
-                (Some(x), None) => Some(x),
-                (None, Some((x, _))) => Some(*x),
-                (Some(a), Some((b, _))) => Some(a.max(*b)),
-                (None, None) => None,
-            }
-        ).map(|v| v as f64)
+        self.max_value_hint
+            .or(
+                match (self.threshold_highlight, self.color_gradient.max_stop()) {
+                    (Some(x), None) => Some(x),
+                    (None, Some((x, _))) => Some(*x),
+                    (Some(a), Some((b, _))) => Some(a.max(*b)),
+                    (None, None) => None,
+                },
+            )
+            .map(|v| v as f64)
     }
     fn min_value_hint(&self) -> Option<Self::Value> {
         Some(0.0)
@@ -269,26 +264,17 @@ impl PerfUiEntry for PerfUiEntryRenderGpuTime {
         }
         total
     }
-    fn format_value(
-        &self,
-        value: &Self::Value,
-    ) -> String {
+    fn format_value(&self, value: &Self::Value) -> String {
         let mut s = format_pretty_float(self.digits, self.precision, *value);
         if self.display_units {
             s.push_str(" ms");
         }
         s
     }
-    fn value_color(
-        &self,
-        value: &Self::Value,
-    ) -> Option<Color> {
+    fn value_color(&self, value: &Self::Value) -> Option<Color> {
         self.color_gradient.get_color_for_value(*value as f32)
     }
-    fn value_highlight(
-        &self,
-        value: &Self::Value,
-    ) -> bool {
+    fn value_highlight(&self, value: &Self::Value) -> bool {
         self.threshold_highlight
             .map(|t| (*value as f32) > t)
             .unwrap_or(false)
@@ -300,14 +286,16 @@ impl PerfUiEntry for PerfUiEntryRenderGpuTime {
 
 impl PerfUiEntryDisplayRange for PerfUiEntryRenderGpuTime {
     fn max_value_hint(&self) -> Option<Self::Value> {
-        self.max_value_hint.or(
-            match (self.threshold_highlight, self.color_gradient.max_stop()) {
-                (Some(x), None) => Some(x),
-                (None, Some((x, _))) => Some(*x),
-                (Some(a), Some((b, _))) => Some(a.max(*b)),
-                (None, None) => None,
-            }
-        ).map(|v| v as f64)
+        self.max_value_hint
+            .or(
+                match (self.threshold_highlight, self.color_gradient.max_stop()) {
+                    (Some(x), None) => Some(x),
+                    (None, Some((x, _))) => Some(*x),
+                    (Some(a), Some((b, _))) => Some(a.max(*b)),
+                    (None, None) => None,
+                },
+            )
+            .map(|v| v as f64)
     }
     fn min_value_hint(&self) -> Option<Self::Value> {
         Some(0.0)
