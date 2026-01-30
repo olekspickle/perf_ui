@@ -111,7 +111,7 @@ jobs:
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Install build dependencies
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libwayland-dev
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev
 
       - name: Run tests
         run: cargo test
