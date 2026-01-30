@@ -56,10 +56,8 @@ impl ColorGradient {
     }
 
     /// Preset constructor: Red-Yellow-Green between the specified low-mid-high values.
-    pub fn new_preset_ryg(low: f32, mid: f32, high: f32) -> Result<Self, ()> {
-        if low.is_nan() || mid.is_nan() || high.is_nan() || low > mid || mid > high {
-            return Err(());
-        }
+    pub fn new_preset_ryg(low: f32, mid: f32, high: f32) -> Result<Self, String> {
+        Self::in_order(low, mid, high)?;
         Ok(ColorGradient {
             stops: vec![
                 (FloatOrd(low), Color::srgb(1.0, 0.0, 0.0).into()),
@@ -70,10 +68,8 @@ impl ColorGradient {
     }
 
     /// Preset constructor: Green-Yellow-Red between the specified low-mid-high values.
-    pub fn new_preset_gyr(low: f32, mid: f32, high: f32) -> Result<Self, ()> {
-        if low.is_nan() || mid.is_nan() || high.is_nan() || low > mid || mid > high {
-            return Err(());
-        }
+    pub fn new_preset_gyr(low: f32, mid: f32, high: f32) -> Result<Self, String> {
+        Self::in_order(low, mid, high)?;
         Ok(ColorGradient {
             stops: vec![
                 (FloatOrd(low), Color::srgb(0.0, 1.0, 0.0).into()),
@@ -81,6 +77,13 @@ impl ColorGradient {
                 (FloatOrd(high), Color::srgb(1.0, 0.0, 0.0).into()),
             ],
         })
+    }
+
+    fn in_order(low: f32, mid: f32, high: f32) -> Result<(), String> {
+        if low.is_nan() || mid.is_nan() || high.is_nan() || low > mid || mid > high {
+            return Err("low, mid, and high must be in order".into());
+        }
+        Ok(())
     }
 
     /// Add a stop to the gradient.
@@ -95,14 +98,10 @@ impl ColorGradient {
 
         // ensure our Vec is always in sorted order
         match self.stops.binary_search_by_key(&stop.0, |x| x.0) {
-            Ok(i) => {
-                // replace existing stop
-                self.stops[i].1 = stop.1;
-            }
-            Err(i) => {
-                // add new stop
-                self.stops.insert(i, stop);
-            }
+            // replace existing stop
+            Ok(i) => self.stops[i].1 = stop.1,
+            // add new stop
+            Err(i) => self.stops.insert(i, stop),
         }
     }
 

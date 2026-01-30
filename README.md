@@ -1,7 +1,7 @@
 # Customizable Performance/Debug Overlay for Bevy UI
 
-[![Crates.io](https://img.shields.io/crates/v/iyes_perf_ui)](https://crates.io/crates/iyes_perf_ui)
-[![docs](https://docs.rs/iyes_perf_ui/badge.svg)](https://docs.rs/iyes_perf_ui/)
+[![Crates.io](https://img.shields.io/crates/v/bevy_perf_ui)](https://crates.io/crates/bevy_perf_ui)
+[![docs](https://docs.rs/bevy_perf_ui/badge.svg)](https://docs.rs/bevy_perf_ui/)
 [![MIT/Apache 2.0](https://img.shields.io/badge/license-MIT%2FApache-blue.svg)](./LICENSE)
 
 Sponsor me:

@@ -47,12 +47,11 @@
 //!
 //! If you want to customize the appearance, set the various fields in each of the
 //! structs, instead of using `default()`. To customize settings that apply to all
-//! entries, add the [`PerfUiRoot`] component.
+//! entries, add the [`crate::ui::root::PerfUiRoot`] component.
 //!
 //! If you want to implement your own custom entry, create a component type
 //! to represent your entry (you can use it to store any settings),
-//! implement [`PerfUiEntry`] for it, and register it using
-//! `app.add_perf_ui_entry_type::<T>()`.
+//! derive [`crate::ui::root::PerfUiRoot`] on it, and register it using `app.add_perf_ui_entry_type::<T>()`.
 
 #![warn(missing_docs)]
 #![allow(clippy::type_complexity)]

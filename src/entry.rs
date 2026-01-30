@@ -10,9 +10,6 @@ use crate::prelude::*;
 ///
 /// If you want to display your own info in Perf UI, create your
 /// own component types and implement this trait for them.
-///
-/// If you also have meaningful historical data available, rather than
-/// just the current value, consider also implementing [`PerfUiEntryHistory`].
 pub trait PerfUiEntry: Component {
     /// Any system parameters you need to fetch/update the value.
     type SystemParam: SystemParam + 'static;
