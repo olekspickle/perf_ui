@@ -110,6 +110,9 @@ jobs:
           cache-directories: ${{ env.LD_LIBRARY_PATH }}
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
+      - name: Install build dependencies
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libwayland-dev
+
       - name: Run tests
         run: cargo test
 
