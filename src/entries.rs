@@ -77,7 +77,7 @@ pub(crate) fn predefined_entries_plugin(app: &mut App) {
     }
 }
 
-/// Bundle for a Perf UI with all entry types provided by `iyes_perf_ui`.
+/// Bundle for a Perf UI with all entry types provided by `bevy_perf_ui`.
 ///
 /// This gives you a simple one-liner to spawn a comprehensive Perf UI!
 ///
@@ -137,7 +137,7 @@ pub struct PerfUiAllEntries {
     pub window_present_mode: PerfUiEntryWindowPresentMode,
 }
 
-/// Bundle for a Perf UI with some of the entry types provided by `iyes_perf_ui`.
+/// Bundle for a Perf UI with some of the entry types provided by `bevy_perf_ui`.
 ///
 /// This gives you a simple one-liner to spawn a Perf UI!
 ///

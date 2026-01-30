@@ -5,17 +5,17 @@
 //!
 //! The goal of this crate is to make it as useful as possible for any Bevy project:
 //!  - Made with Bevy UI (not egui or any other 3rd-party UI solution)
-//!  - Easy to set up (see [`simple`](https://github.com/IyesGames/iyes_perf_ui/blob/v0.2.3/examples/simple.rs) example)
+//!  - Easy to set up (see [`simple`](https://github.com/olekspickle/perf_ui/blob/main/examples/simple.rs) example)
 //!  - Modular! You decide what info you want to display!
 //!    - Choose any combination of predefined entries
-//!      (see [`specific_entries`](https://github.com/IyesGames/iyes_perf_ui/blob/v0.2.3/examples/specific_entries.rs) example):
+//!      (see [`specific_entries`](https://github.com/olekspickle/perf_ui/blob/main/examples/specific_entries.rs) example):
 //!      - Framerate (FPS), Frame Time, Frame Count, ECS Entity Count, CPU Usage, RAM Usage,
 //!        Render CPU Time, Render GPU Time,
 //!        Wall Clock, Running Time, Fixed Time Step, Fixed Overstep,
 //!        Cursor Position, Window Resolution, Window Scale Factor, Window Mode, Present Mode
 //!    - Implement your own custom entries to display anything you like!
-//!      - (see [`custom_minimal`](https://github.com/IyesGames/iyes_perf_ui/blob/v0.2.3/examples/custom_minimal.rs) and [`custom`](https://github.com/IyesGames/iyes_perf_ui/blob/v0.2.3/examples/custom.rs) examples)
-//!  - Customizable appearance/styling (see [`settings`](https://github.com/IyesGames/iyes_perf_ui/blob/v0.2.3/examples/settings.rs), [`fps_minimalist`](https://github.com/IyesGames/iyes_perf_ui/blob/v0.2.3/examples/fps_minimalist.rs) examples)
+//!      - (see [`custom_minimal`]( https://github.com/olekspickle/perf_ui/blob/main/examples/custom_minimal.rs) and [`custom`](https://github.com/olekspickle/perf_ui/blob/main/examples/custom.rs) examples)
+//!  - Customizable appearance/styling (see [`settings`]( https://github.com/olekspickle/perf_ui/blob/main/examples/settings.rs), [`fps_minimalist`](https://github.com/olekspickle/perf_ui/blob/main/examples/fps_minimalist.rs) examples)
 //!  - Support for highlighting values using a custom font or color!
 //!    - Allows you to quickly notice if something demands your attention.
 //!

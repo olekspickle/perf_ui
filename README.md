@@ -4,10 +4,6 @@
 [![docs](https://docs.rs/bevy_perf_ui/badge.svg)](https://docs.rs/bevy_perf_ui/)
 [![MIT/Apache 2.0](https://img.shields.io/badge/license-MIT%2FApache-blue.svg)](./LICENSE)
 
-Sponsor me:
-
-<a href="https://github.com/sponsors/inodentry"><button class="ghsponsors-button">GitHub Sponsors</button></a>
-
 Bevy Compatibility:
 
 | Bevy Version | Plugin Version |
@@ -17,7 +13,6 @@ Bevy Compatibility:
 | `0.15`       | `0.4`          |
 | `0.14`       | `0.3`          |
 | `0.13`       | `0.2`,`0.1`    |
-
 ---
 
 This crate provides an implementation of an in-game performance/debug UI overlay
@@ -103,11 +98,10 @@ fonts that you would like to use, by customizing `PerfUiRoot`.
 
 ## Fancy Widgets
 
-It is possible to visualize the value in other ways, not just display it
-as text.
+It is possible to visualize the value in other ways, not just display it as text.
 
-`iyes_perf_ui` currently provides one such widget implementation: Bar. To
-use it, wrap your entries in `PerfUiWidgetBar`.
+`bevy_perf_ui` currently provides one such widget implementation: Bar.
+To use it, wrap your entries in `PerfUiWidgetBar`.
 
 For example, to display FPS as a Bar:
 

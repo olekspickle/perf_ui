@@ -42,7 +42,7 @@ pub trait PerfUiWidget<T: PerfUiEntry>: Component {
     ///
     /// Use the provided `commands` for spawning your entities.
     ///
-    /// Do not add yourself as a child of `e_root`! `iyes_perf_ui` will take
+    /// Do not add yourself as a child of `e_root`! `bevy_perf_ui` will take
     /// care of that for you!
     fn spawn(
         &self,
